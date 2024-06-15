@@ -40,10 +40,12 @@ items = items["items"]
 itemsInInventory = [[], []]
 for item in items[:5]:
 
+    ahk.mouse_move(x=660, y=695, speed=3)
     sleep(0.3)
     ahk.click(3, "Left")
     sleep(0.3)
     ahk.send(item)
+    sleep(0.4)
 
     screenshot = helper.getScreenCV()  # get the screen
 

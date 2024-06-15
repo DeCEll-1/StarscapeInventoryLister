@@ -35,7 +35,7 @@ class HELP:
         )  # first row text
 
         itemAmount = HELP.cropImage(
-            item, topLeft=(365, 19), bottomRight=(378, 31)
+            item, topLeft=(330, 19), bottomRight=(378, 31)
         )  # first row amount
 
         return (itemName, itemAmount)
@@ -47,7 +47,7 @@ class HELP:
             "c:\\Program Files\\Tesseract-OCR\\tesseract.exe"
         )
 
-        shapeSizeMult = 4 if readMode == "Text" else 2
+        shapeSizeMult = 4 if readMode == "Text" else 4
 
         # Preprocessing the image starts
 
@@ -55,7 +55,7 @@ class HELP:
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
         # Performing OTSU threshold
-        _, thresh = cv.threshold(gray, 10, 60, cv.THRESH_OTSU | cv.THRESH_BINARY_INV)
+        _, thresh = cv.threshold(gray, 10, 150, cv.THRESH_OTSU | cv.THRESH_BINARY_INV)
 
         (imgY, imgX) = thresh.shape[:2]
 
@@ -72,7 +72,11 @@ class HELP:
         (imgY, imgX) = img.shape[:2]
         imgNewShape = (imgX * shapeSizeMult, imgY * shapeSizeMult)
 
-        im2 = cv.resize(img, imgNewShape, interpolation=cv.INTER_AREA).copy()
+        im2 = cv.resize(
+            thresh if readMode == "Number" else img,
+            imgNewShape,
+            interpolation=cv.INTER_LANCZOS4,
+        ).copy()
 
         # Looping through the identified contours
         # Then rectangular part is cropped and passed on
@@ -97,7 +101,7 @@ class HELP:
             else:
                 text = pytesseract.image_to_string(
                     cropped,
-                    config="--psm 7 -c tessedit_char_whitelist=0123456789",  # use this for texts
+                    config="--psm 12 -c tessedit_char_whitelist=0123456789",  # use this for numbers
                 )  # https://stackoverflow.com/a/44632770/21149029
 
             cv.imshow("cropped", cropped)
